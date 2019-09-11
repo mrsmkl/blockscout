@@ -27,6 +27,7 @@ defmodule Indexer.Supervisor do
     BlocksTransactionsMismatch,
     DoubleTokenTransfers,
     MissingTokenTransfers,
+    InternalTransactionsBlockNumber,
     UncatalogedTokenTransfers,
     UnclesWithoutIndex
   }
@@ -131,7 +132,8 @@ defmodule Indexer.Supervisor do
         {BlocksTransactionsMismatch.Supervisor,
          [[json_rpc_named_arguments: json_rpc_named_arguments, memory_monitor: memory_monitor]]},
         {DoubleTokenTransfers.Supervisor, [[memory_monitor: memory_monitor]]},
-        {MissingTokenTransfers.Supervisor, [[memory_monitor: memory_monitor]]}
+        {MissingTokenTransfers.Supervisor, [[memory_monitor: memory_monitor]]},
+        {InternalTransactionsBlockNumber.Supervisor, [[memory_monitor: memory_monitor]]}
       ],
       strategy: :one_for_one
     )
