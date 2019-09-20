@@ -118,20 +118,20 @@ defmodule Explorer.Chain.Import.Runner.BlocksTest do
 
     test "remove_nonconsensus_data deletes token transfer rows with matching block number when new consensus block is inserted",
          %{consensus_block: %{number: block_number} = block, options: options} do
-      insert(:block, number: block_number, consensus: true)
+      consensus_block = insert(:block, number: block_number, consensus: true)
+
+      transaction = insert(:transaction) |> with_block(consensus_block)
 
       %TokenTransfer{transaction_hash: transaction_hash, log_index: log_index} =
-        insert(:token_transfer, block_number: block_number, transaction: insert(:transaction))
+        insert(:token_transfer, block_number: block_number, transaction: transaction)
 
       assert count(TokenTransfer) == 1
 
       assert {:ok,
               %{
-                remove_nonconsensus_data: %{
-                  token_transfers: [
-                    %{transaction_hash: ^transaction_hash, log_index: ^log_index}
-                  ]
-                }
+                remove_nonconsensus_token_transfers: [
+                  %{transaction_hash: ^transaction_hash, log_index: ^log_index}
+                ]
               }} = run_block_consensus_change(block, true, options)
 
       assert count(TokenTransfer) == 0
@@ -139,18 +139,17 @@ defmodule Explorer.Chain.Import.Runner.BlocksTest do
 
     test "remove_nonconsensus_data does not delete token transfer rows with matching block number when new consensus block wasn't inserted",
          %{consensus_block: %{number: block_number} = block, options: options} do
-      insert(:token_transfer, block_number: block_number, transaction: insert(:transaction))
+      consensus_block = insert(:block, number: block_number, consensus: true)
+
+      transaction = insert(:transaction) |> with_block(consensus_block)
+
+      insert(:token_transfer, block_number: block_number, transaction: transaction)
 
       count = 1
 
       assert count(TokenTransfer) == count
 
-      assert {:ok,
-              %{
-                remove_nonconsensus_data: %{
-                  token_transfers: []
-                }
-              }} = run_block_consensus_change(block, false, options)
+      assert {:ok, %{remove_nonconsensus_token_transfers: []}} = run_block_consensus_change(block, false, options)
 
       assert count(TokenTransfer) == count
     end
@@ -165,14 +164,8 @@ defmodule Explorer.Chain.Import.Runner.BlocksTest do
 
       assert count(Log) == 1
 
-      assert {:ok,
-              %{
-                remove_nonconsensus_data: %{
-                  logs: [
-                    %{transaction_hash: ^hash, index: ^index}
-                  ]
-                }
-              }} = run_block_consensus_change(block, true, options)
+      assert {:ok, %{remove_nonconsensus_logs: [%{transaction_hash: ^hash, index: ^index}]}} =
+               run_block_consensus_change(block, true, options)
 
       assert count(Log) == 0
     end
