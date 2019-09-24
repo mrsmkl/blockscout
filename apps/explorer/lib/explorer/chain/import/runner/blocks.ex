@@ -8,7 +8,7 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
   import Ecto.Query, only: [from: 2, subquery: 1]
 
   alias Ecto.{Changeset, Multi, Repo}
-  alias Explorer.Chain.{Address, Block, Import, InternalTransaction, Log, Token, TokenTransfer, Transaction}
+  alias Explorer.Chain.{Address, Block, Import, InternalTransaction, Log, TokenTransfer, Transaction}
   alias Explorer.Chain.Block.Reward
   alias Explorer.Chain.Import.Runner
   alias Explorer.Chain.Import.Runner.Address.CurrentTokenBalances
@@ -136,20 +136,8 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
 
     contract_address_hashes = repo.all(query)
 
-    token_query =
-      from(
-        token in Token,
-        where: token.contract_address_hash in ^contract_address_hashes,
-        # Enforce Token ShareLocks order (see docs: sharelocks.md)
-        order_by: token.contract_address_hash,
-        lock: "FOR UPDATE"
-      )
-
-    tokens = repo.all(token_query)
-
-    {:ok, tokens}
+    Tokens.acquire_contract_address_tokens(repo, contract_address_hashes)
   end
-
 
   defp acquire_internal_transactions(repo, hashes, forked_transaction_hashes) do
     query =

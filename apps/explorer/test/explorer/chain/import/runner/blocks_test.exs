@@ -7,7 +7,7 @@ defmodule Explorer.Chain.Import.Runner.BlocksTest do
 
   alias Ecto.Multi
   alias Explorer.Chain.Import.Runner.{Blocks, Transactions}
-  alias Explorer.Chain.{Address, Block, Log, TokenTransfer, Transaction}
+  alias Explorer.Chain.{Address, Block, InternalTransaction, Log, Transaction, TokenTransfer}
   alias Explorer.{Chain, Repo}
 
   describe "run/1" do
@@ -115,7 +115,7 @@ defmodule Explorer.Chain.Import.Runner.BlocksTest do
       assert count(Address.CurrentTokenBalance) == count
     end
 
-    test "remove_nonconsensus_data deletes token transfer rows with matching block number when new consensus block is inserted",
+    test "remove_nonconsensus_token_transfers deletes token transfer rows with matching block number when new consensus block is inserted",
          %{consensus_block: %{number: block_number} = block, options: options} do
       consensus_block = insert(:block, number: block_number, consensus: true)
 
@@ -136,7 +136,7 @@ defmodule Explorer.Chain.Import.Runner.BlocksTest do
       assert count(TokenTransfer) == 0
     end
 
-    test "remove_nonconsensus_data does not delete token transfer rows with matching block number when new consensus block wasn't inserted",
+    test "remove_nonconsensus_token_transfers does not delete token transfer rows with matching block number when new consensus block wasn't inserted",
          %{consensus_block: %{number: block_number} = block, options: options} do
       consensus_block = insert(:block, number: block_number, consensus: true)
 
@@ -153,7 +153,7 @@ defmodule Explorer.Chain.Import.Runner.BlocksTest do
       assert count(TokenTransfer) == count
     end
 
-    test "remove_nonconsensus_data deletes nonconsensus logs", %{
+    test "remove_nonconsensus_logs deletes nonconsensus logs", %{
       consensus_block: %{number: block_number} = block,
       options: options
     } do
@@ -167,6 +167,24 @@ defmodule Explorer.Chain.Import.Runner.BlocksTest do
                run_block_consensus_change(block, true, options)
 
       assert count(Log) == 0
+    end
+
+    test "remove_nonconsensus_internal_transactions deletes nonconsensus internal transactions", %{
+      consensus_block: %{number: block_number} = block,
+      options: options
+    } do
+      old_block = insert(:block, number: block_number, consensus: true)
+      forked_transaction = :transaction |> insert() |> with_block(old_block)
+
+      %InternalTransaction{index: index, transaction_hash: hash} =
+        insert(:internal_transaction, index: 0, transaction: forked_transaction)
+
+      assert count(InternalTransaction) == 1
+
+      assert {:ok, %{remove_nonconsensus_internal_transactions: [%{transaction_hash: ^hash, index: ^index}]}} =
+               run_block_consensus_change(block, true, options)
+
+      assert count(InternalTransaction) == 0
     end
 
     test "derive_address_current_token_balances inserts rows if there is an address_token_balance left for the rows deleted by delete_address_current_token_balances",
