@@ -10,6 +10,11 @@ export function openMakeStakeModal (event, store) {
     return
   }
 
+  if (!store.getState().network.authorized) {
+    openWarningModal('Unauthorized', 'Connect to the xDai Chain for staking.<br /> <a href="https://docs.xdaichain.com" target="_blank">Instructions</a>')
+    return
+  }
+
   const address = $(event.target).closest('[data-address]').data('address') || store.getState().account
 
   store.getState().channel

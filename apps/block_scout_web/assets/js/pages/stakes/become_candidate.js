@@ -10,6 +10,11 @@ export function openBecomeCandidateModal (store) {
     return
   }
 
+  if (!store.getState().network.authorized) {
+    openWarningModal('Unauthorized', 'Connect to the xDai Chain for staking.<br /> <a href="https://docs.xdaichain.com" target="_blank">Instructions</a>')
+    return
+  }
+
   store.getState().channel
     .push('render_become_candidate')
     .receive('ok', msg => {
