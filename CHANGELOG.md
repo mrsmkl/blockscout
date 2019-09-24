@@ -10,6 +10,7 @@
 - [#2666](https://github.com/poanetwork/blockscout/pull/2666) - fetch token counters in parallel
 - [#2665](https://github.com/poanetwork/blockscout/pull/2665) - new menu layout for mobile devices
 - [#2663](https://github.com/poanetwork/blockscout/pull/2663) - Fetch address counters in parallel
+- [#2642](https://github.com/poanetwork/blockscout/pull/2642) - add ERC721 coin instance page
 
 ### Fixes
 - [#2718](https://github.com/poanetwork/blockscout/pull/2718) - Include all addresses taking part in transactions in wallets' addresses counter
