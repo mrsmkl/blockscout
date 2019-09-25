@@ -29,22 +29,11 @@ export const initialState = {
   refreshInterval: null,
   lastEpochNumber: 0,
   lastBlockNumber: 0,
-  stakingAllowed: false,
-  allowedNetworks: {
-    '100': {
-      id: 100,
-      name: 'Dai',
-      authorized: true,
-      rpc: 'https://dai.poa.network'
-    },
-    '101': {
-      id: 101,
-      name: 'Dai Test',
-      authorized: true,
-      rpc: 'http://localhost:8541'
-    }
-  }
+  stakingAllowed: false
 }
+
+// 100 - id of xDai network, 101 - id of xDai test network
+export const allowedNetworkIds = [100, 101]
 
 export function reducer (state = initialState, action) {
   switch (action.type) {
@@ -223,15 +212,13 @@ function setAccount (account, store) {
 function setNetwork (networkId, store) {
   let network = {
     id: networkId,
-    name: 'Undefined',
-    authorized: false,
-    rpc: null
+    authorized: false
   }
 
-  if (!(networkId in initialState.allowedNetworks)) {
-    openWarningModal('Unauthorized', 'Connect to the xDai Chain for staking.<br /> <a href="https://docs.xdaichain.com" target="_blank">Instructions</a>')
+  if (allowedNetworkIds.includes(networkId)) {
+    network.authorized = true
   } else {
-    network = initialState.allowedNetworks[networkId]
+    openWarningModal('Unauthorized', 'Connect to the xDai Chain for staking.<br /> <a href="https://docs.xdaichain.com" target="_blank">Instructions</a>')
   }
 
   store.dispatch({ type: 'NETWORK_UPDATED', network })
