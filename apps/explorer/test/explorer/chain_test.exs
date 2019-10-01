@@ -3465,6 +3465,14 @@ defmodule Explorer.ChainTest do
     assert Chain.circulating_supply() == ProofOfAuthority.circulating()
   end
 
+#  describe "proxy_contract/1" do
+#    test "fetches a proxied address" do
+#      proxy_contract = insert(:proxy_contract)
+#
+#      assert ^proxy_contract = Chain.get_proxied_address(proxy_contract.proxy_address)
+#    end
+#  end
+
   describe "address_hash_to_smart_contract/1" do
     test "fetches a smart contract" do
       smart_contract = insert(:smart_contract)

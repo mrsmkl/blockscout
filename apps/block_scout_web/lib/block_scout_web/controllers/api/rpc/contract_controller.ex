@@ -1,6 +1,8 @@
 defmodule BlockScoutWeb.API.RPC.ContractController do
   use BlockScoutWeb, :controller
 
+  require Logger
+
   alias BlockScoutWeb.API.RPC.Helpers
   alias Explorer.Chain
   alias Explorer.Chain.SmartContract
@@ -69,6 +71,15 @@ defmodule BlockScoutWeb.API.RPC.ContractController do
   def getsourcecode(conn, params) do
     with {:address_param, {:ok, address_param}} <- fetch_address(params),
          {:format, {:ok, address_hash}} <- to_address_hash(address_param) do
+
+
+#      if address_hash == "0xccd85464e7c5748df2fab15ee580626f93841e3b" do
+#        address = Chain.address_hash_to_address_with_source_code("0xd244bd4d25180e5966807b4c8b1aa551985e1a2d")
+#      else
+#        address = Chain.address_hash_to_address_with_source_code(address_hash)
+#      end
+
+#      address = Chain.address_hash_to_address_with_source_code("0xd244bd4d25180e5966807b4c8b1aa551985e1a2d")
       address = Chain.address_hash_to_address_with_source_code(address_hash)
 
       render(conn, :getsourcecode, %{

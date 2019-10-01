@@ -40,8 +40,11 @@ defmodule BlockScoutWeb.API.RPC.ContractView do
   end
 
   defp prepare_source_code_contract(address) do
+
     decompiled_smart_contract = latest_decompiled_smart_contract(address.decompiled_smart_contracts)
     contract = address.smart_contract || %{}
+
+
 
     contract_abi =
       if is_nil(address.smart_contract) do
